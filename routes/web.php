@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\BlogController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -14,50 +16,22 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-
-
-Route::get('/', function (){
+Route::get('/', function () {
     return view('welcome');
 });
 
-// index - show user - create - store - edit - update - delete
-//Route::get('/users', [UserController::class, 'index'])->name('users.index');
-//Route::get('/users/{id}', [UserController::class, 'show'])->name('users.show');
-//Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
-//Route::post('/users', [UserController::class, 'store'])->name('users.store');
-//Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('users.edit');
-//Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
-//Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
 
 
-Route::resource('users', UserController::class);
+Route::resource('users', UserController::class)->middleware('auth');
+Route::resource('blogs', BlogController::class)->middleware(['auth', 'admin']);
 
-
-
-
-//Route::group([ 'prefix' => 'user'], function (){
-//    Route::get('{user}', function ($user){
-//        return "Hello $user";
-//    })
-//        ->where('user', '[A-Za-z]+');
-//
-//        Route::get('{user}/post/{id}', function ($user, $id){
-//            return $user . " id = $id";
-//        })
-//            ->name('posts')
-//            ->where('user', '[A-Za-z]+');
-//})->name();
-//
-//Route::get('/login', function (){
-//
-//})->name('login');
-//Route::get('/there', function (){
-//    return 'redirect';
-//})->name('login');
-//
-//Route::redirect('/here', '/there');
-//
-//
-//Route::get('/search/{search}', function ($search){
-//    return $search;
-//})->where('search', '.*');;
+require __DIR__.'/auth.php';
